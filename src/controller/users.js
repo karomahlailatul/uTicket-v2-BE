@@ -132,7 +132,13 @@ const UserController = {
       if (typeof queryUpdate === "undefined" && typeof queryDelete === "undefined") {
         
         responseHelper(res, user, 200);
-        client.setEx(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
+        // client.SET(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
+
+
+        // It's documented
+
+        client.set(`users/${email}`, JSON.stringify(user), 'ex', 60)
+
 
       } else if (typeof queryUpdate === "string" && typeof queryDelete === "undefined") {
         if (req.file) {

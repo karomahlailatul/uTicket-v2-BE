@@ -54,7 +54,7 @@ const hitCacheGetProfileUsers = async (req, res, next) => {
     const email = req.payload.email;
     const getProfileUsers = await client.get(`users/${email}`)
     // console.log(client.get())
-    console.log(getProfileUsers)
+    // console.log(getProfileUsers)
     if (getProfileUsers) {
         return responseHelper(res, JSON.parse(getProfileUsers), 200, 'get data success from redis')
     }
