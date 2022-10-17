@@ -33,7 +33,6 @@ const bookingController = {
                                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id 
                                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
                                 where users.name ilike '\%${search}\%' `;
-      
       }
 
       const totalData = parseInt((await bookingModel.selectAllSearchCount(querysearch)).rows[0].count);
@@ -87,6 +86,7 @@ const bookingController = {
         flight_id,
 
         payment_midtrans_snap_token,
+        payment_discount,
 
         passenger_count,
         passenger_title_1,
@@ -145,13 +145,29 @@ const bookingController = {
 
       const price = parseInt(checkFlight.rows[0].price);
 
-      if (trip_status == "one_way") {
-        payment_total = price * parseInt(passenger_count);
-      } else if (trip_status == "rounded_trip") {
-        payment_total = 2 * (price * parseInt(passenger_count));
+      const flightCapacity = parseInt(checkFlight.rows[0].capacity);
+
+      if (flightCapacity < passenger_count) {
+        return responseHelper(res, null, 404, `Only available ${flightCapacity} seat on this Flight`);
       }
 
+      const trip_depature = checkFlight.rows[0].depature;
 
+      let trip_arrive = ``;
+      let setPaymentDiscount;
+
+      if (payment_discount == "" || payment_discount == "0" || payment_discount == "null" || payment_discount == undefined) {
+        setPaymentDiscount = 0;
+      } else if (payment_discount != "" || payment_discount != "0" || payment_discount != "null" || payment_discount != undefined) {
+        setPaymentDiscount = payment_discount;
+      }
+
+      if (trip_status == "one_way") {
+        payment_total = price * parseInt(passenger_count) - setPaymentDiscount;
+      } else if (trip_status == "rounded_trip") {
+        payment_total = 2 * (price * parseInt(passenger_count)) - setPaymentDiscount;
+        trip_arrive = checkFlight.rows[0].depature;
+      }
 
       const id_users_verification = uuidv4().toLocaleLowerCase();
       const token = `${payment_midtrans_snap_token}_${id}_${crypto.randomBytes(16).toString("hex")}`;
@@ -164,11 +180,16 @@ const bookingController = {
         booking_email,
         booking_phone,
         booking_status,
+
         trip_status,
+        trip_depature,
+        trip_arrive,
+
         users_id,
         flight_id,
 
         payment_status,
+        setPaymentDiscount,
         payment_total,
         payment_midtrans_snap_token,
 
@@ -215,15 +236,14 @@ const bookingController = {
         booking_fullname,
         booking_email,
         booking_phone,
-
         booking_status,
-
         trip_status,
 
         users_id,
         flight_id,
 
         payment_midtrans_snap_token,
+        payment_discount,
         payment_status,
 
         passenger_count,
@@ -285,17 +305,51 @@ const bookingController = {
         payment_total = 2 * (price * parseInt(passenger_count));
       }
 
+      const flightCapacity = parseInt(checkFlight.rows[0].capacity);
+
+      if (flightCapacity < passenger_count) {
+        return responseHelper(res, null, 404, `Only available ${flightCapacity} seat on this Flight`);
+      } else if (flightCapacity >= passenger_count) {
+        let availableCapacity = parseInt(flightCapacity) - parseInt(passenger_count);
+        if (payment_status == "success" && booking_status == "success") {
+          await flightModel.updateCapacity(flight_id, availableCapacity);
+        }
+      }
+
+      const trip_depature = parseInt(checkFlight.rows[0].depature);
+
+      let trip_arrive = ``;
+      let setPaymentDiscount;
+
+      if (payment_discount == "" || payment_discount == "0" || payment_discount == "null" || payment_discount == undefined) {
+        setPaymentDiscount = 0;
+      } else if (payment_discount != "" || payment_discount != "0" || payment_discount != "null" || payment_discount != undefined) {
+        setPaymentDiscount = payment_discount;
+      }
+
+      if (trip_status == "one_way") {
+        payment_total = ( price * parseInt(passenger_count) - payment_discount );
+      } else if (trip_status == "rounded_trip") {
+        payment_total = ( (2 * (price * parseInt(passenger_count))) - payment_discount );
+        trip_arrive = parseInt(checkFlight.rows[0].depature);
+      }
+
       await bookingModel.updateBookingAdmin(
         id,
         booking_fullname,
         booking_email,
         booking_phone,
         booking_status,
+
         trip_status,
+        trip_depature,
+        trip_arrive,
+
         users_id,
         flight_id,
 
         payment_status,
+        setPaymentDiscount,
         payment_total,
         payment_midtrans_snap_token,
 
@@ -368,39 +422,53 @@ const bookingController = {
   updateBookingPaymentVerification: async (req, res) => {
     try {
       const id = req.query.id;
-      const token = req.query.token;
+      const tokenMidTrans = req.query.token;
 
       try {
-        if (typeof id != "string" && typeof token != "string") throw "Invalid Url Credential Payment";
-        if (typeof id == "string" && typeof token != "string") throw "Invalid Booking Payment";
-        if (typeof id != "string" && typeof token == "string") throw "Invalid Token Payment";
+        if (typeof id != "string" && typeof tokenMidTrans != "string") throw "Invalid Url Credential Payment";
+        if (typeof id == "string" && typeof tokenMidTrans != "string") throw "Invalid Booking Payment";
+        if (typeof id != "string" && typeof tokenMidTrans == "string") throw "Invalid Token Payment";
       } catch (error) {
         return responseHelper(res, null, 403, error);
       }
 
       const checkBooking = await bookingModel.selectBooking(id);
-
-      const users_id = checkBooking.rows[0].users_id;
-
       try {
         if (checkBooking.rowCount == 0) throw "Booking has not found";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
+      
 
-      const verificationCheck = await usersModel.checkUsersVerification(users_id, token);
+      const vCheckToken = `${tokenMidTrans}_${id}`;
 
+      const users_id = checkBooking.rows[0].users_id;
+
+      // console.log(vCheckToken)
+      
+      const verificationCheck = await usersModel.checkUsersVerification(users_id, vCheckToken);
       if (verificationCheck.rowCount == 0) {
-        return responseHelper(res, null, 403, "Invalid Credential Payment");
+        return responseHelper(res, null, 403, "Invalid Token Credential Payment");
       }
 
       await bookingModel.updateBookingPaymentSuccess(id);
+      await usersModel.deleteUsersVerificationAdmin(users_id, vCheckToken);
 
-      await usersModel.deleteUsersVerificationAdmin(users_id, id);
+      // const resultBooking = await bookingModel.selectBookingBarcodeQRCode(id);
+      const resultBooking = { 
+        id : checkBooking.rows[0].id ,
+        users_id : checkBooking.rows[0].users_id,
+        flight_id : checkBooking.rows[0].flight_id,
 
-      const resultBooking = await bookingModel.selectBookingBarcodeQRCode(id);
+      }
+      const valueResultBooking = JSON.stringify(resultBooking);
 
-      const valueResultBooking = JSON.stringify(resultBooking.rows[0]);
+      const flight_id = checkBooking.rows[0].flight_id;
+      const flightCapacity = (await flightModel.selectFlight(flight_id)).rows[0].capacity;
+      const passenger_count = checkBooking.rows[0].passenger_count;
+     
+      let availableCapacity = parseInt(flightCapacity) - parseInt(passenger_count);
+      await flightModel.updateCapacity(flight_id, availableCapacity);
 
       bwipjs.toBuffer(
         {
@@ -440,7 +508,7 @@ const bookingController = {
         }
       );
 
-      responseHelper(res, null, 201, "Payment Booking Success ");
+      responseHelper(res, null, 201, "Payment Booking Success");
     } catch (error) {
       console.log(error);
       res.send(createError(400));

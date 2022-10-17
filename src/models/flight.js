@@ -495,6 +495,10 @@ const deleteFlight = (id) => {
   return Pool.query(`delete from flight where id='${id}'`);
 };
 
+const updateCapacity = (id , value) => {
+  return Pool.query(`update flight set capacity = ${value} where id='${id}'`);
+};
+
 const countData = () => {
   return Pool.query("SELECT COUNT(*) FROM flight");
 };
@@ -510,5 +514,5 @@ module.exports = {
   deleteFlight,
   countData,
   selectAllSearchCount,
-  
+  updateCapacity,
 };

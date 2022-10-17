@@ -189,7 +189,11 @@ create table booking (
     booking_email text,
     booking_phone text,
     booking_status text,
+
     trip_status text,
+    
+    trip_arrive text,
+    trip_depature text,
 
     qr_code text,
     qr_code_pc text,
@@ -201,6 +205,7 @@ create table booking (
 
     payment_status text ,
     payment_total text,
+    payment_discount text,
     payment_midtrans_snap_token text ,
 
     passenger_count text,

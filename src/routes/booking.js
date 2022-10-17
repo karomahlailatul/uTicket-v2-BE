@@ -10,9 +10,9 @@ router.put("/:id", protect, bookingController.updateBookingAdmin);
 
 router.delete("/:id", protect, bookingController.deleteBooking);
 
-router.post("/py-verify", protect, bookingController.updateBookingPaymentVerification);
+router.post("/py-verify", bookingController.updateBookingPaymentVerification);
 // router.put("/py-error", protect, bookingController.updateBookingAdmin);
 
-router.put("/py-failed", protect, bookingController.failedBookingPayment);
+router.put("/py-failed", bookingController.failedBookingPayment);
 
 module.exports = router;

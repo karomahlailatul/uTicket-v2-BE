@@ -28,11 +28,9 @@ const deleteUsersVerification = (queryUsersId, queryToken) => {
   return Pool.query(`delete from users_verification  where users_id='${queryUsersId}' and token ilike '%${queryToken}%' `);
 };
 
-
 const deleteUsersVerificationAdmin = (users_id,id) => {
     return Pool.query(`delete from users_verification  where users_id='${users_id}' and token ilike '%${id}%'`);
-  };
-
+};
   
 const updateAccountVerification = (queryUsersId) => {
   return Pool.query(`update users set verify='true' where id='${queryUsersId}' `);
