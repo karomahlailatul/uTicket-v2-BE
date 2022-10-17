@@ -133,7 +133,7 @@ const UserController = {
         
         responseHelper(res, user, 200);
         // client.setEx(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
-        client.set(`users/${email}`, JSON.stringify(user), 'ex', 60 * 60 * 6)
+        client.set(`users/${email}`, JSON.stringify(user), 'ex', (60 * 60 * 6))
 
 
       } else if (typeof queryUpdate === "string" && typeof queryDelete === "undefined") {
