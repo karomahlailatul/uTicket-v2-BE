@@ -23,30 +23,50 @@ const flightController = {
 
       let search;
       let querysearch = "";
+      
+      let queryFilter = ``;
 
-      if (typeof search_option_1 === "string" && typeof search_option_2 === "string" && typeof search_option_3 === "string" ) {
-        querysearch = `inner join airlines on flight.airlines_id = airlines.id 
-                inner join airport as airport_depature on flight.airport_depature = airport_depature.id
-                inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id
-                `;
-      } else {
-        let queryFilter = ``;
-
-        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) != "string"  &&  typeof (req.query.searchby_option_3) != "string"  ) {
+      if ( 
+        typeof  req.query.searchby_option_1  == "string" &&  
+        typeof  req.query.searchby_option_2  != "string" &&  
+        typeof  req.query.searchby_option_3  != "string"  &&
+        typeof  search_option_1  == "string" &&  
+        typeof  search_option_2  != "string" &&  
+        typeof  search_option_3  != "string"  
+        
+        
+        ) {
           queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%'`;
-        }
-        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) == "string"  && typeof (req.query.searchby_option_3) != "string" ) {
-          queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%' and  flight.${searchByOption2} ilike '\%${search_option_2}\%' `;
-        }
-        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) == "string"  && typeof (req.query.searchby_option_3) == "string"  ) {
-          queryFilter = `where airlines.${searchByOption3} ilike '\%${search_option_1}\%' and flight.${searchByOption2} ilike '\%${search_option_3}\%' and flight.${searchByOption2} ilike '\%${search_option_3}\%' `;
-        }
+      } else if ( 
+        typeof  req.query.searchby_option_1 == "string" &&  
+        typeof  req.query.searchby_option_2  == "string" &&  
+        typeof  req.query.searchby_option_3 != "string" &&
+        typeof  search_option_1  == "string" &&  
+        typeof  search_option_2  == "string" &&  
+        typeof  search_option_3  != "string"  
+        
+        ) {
+          queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%' and flight.${searchByOption2} ilike '\%${search_option_2}\%' `;
+      } else if ( 
+        typeof  req.query.searchby_option_1 == "string" &&  
+        typeof  req.query.searchby_option_2  == "string" &&  
+        typeof  req.query.searchby_option_3  == "string" &&
+        typeof  search_option_1  == "string" &&  
+        typeof  search_option_2  == "string" &&  
+        typeof  search_option_3  == "string"  
+        
+        ) {
+          queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%' and flight.${searchByOption2} ilike '\%${search_option_2}\%' and flight.${searchByOption3} ilike '\%${search_option_3}\%' `;
+      } else 
+         {
+          queryFilter = ``
+       } 
 
-        querysearch = `inner join airlines on flight.airlines_id = airlines.id 
-                inner join airport as airport_depature on flight.airport_depature = airport_depature.id
-                inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
-                 ${queryFilter} `;
-      }
+      querysearch =`inner join airlines on flight.airlines_id = airlines.id 
+                    inner join airport as airport_depature on flight.airport_depature = airport_depature.id
+                    inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
+                      ${queryFilter} `;
+      
 
       const totalData = parseInt((await flightModel.selectAllSearchCount(querysearch)).rows[0].count);
       const sortby = "flight." + (req.query.sortby || "created_on");
