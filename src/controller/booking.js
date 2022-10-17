@@ -73,6 +73,15 @@ const bookingController = {
   },
   insertBooking: async (req, res) => {
     try {
+
+      const role = req.payload.role;
+
+      try {
+        if (role != "user" && role != "super-user") throw "You're Cannot Access this feature";
+      } catch (error) {
+        return responseHelper(res, null, 404, error);
+      }
+      
       const id = uuidv4().toLocaleLowerCase();
 
       const {
@@ -227,10 +236,12 @@ const bookingController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "admin" && role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
+
+
 
       const {
         booking_fullname,
@@ -387,14 +398,14 @@ const bookingController = {
   deleteBooking: async (req, res) => {
     try {
       const id = req.params.id;
-
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "admin" && role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
+
 
       const checkbooking = await bookingModel.selectBooking(id);
 

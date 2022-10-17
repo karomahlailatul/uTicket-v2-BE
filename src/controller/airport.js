@@ -62,7 +62,7 @@ const airportController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -91,7 +91,7 @@ const airportController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -118,10 +118,11 @@ const airportController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
+
       const checkairport = await airportModel.selectAirport(id);
 
       try {

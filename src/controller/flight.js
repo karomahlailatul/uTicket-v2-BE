@@ -71,7 +71,7 @@ const flightController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "admin" && role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -184,7 +184,7 @@ const flightController = {
       const checkUsers = await flightModel.selectUsers(admin_id);
 
       try {
-        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin") throw "Admin has not found";
+        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin" || checkUsers.rows[0].role != "super-user") throw "Admin has not found";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -232,7 +232,7 @@ const flightController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "admin" && role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -350,7 +350,7 @@ const flightController = {
       const checkUsers = await flightModel.selectUsers(admin_id);
 
       try {
-        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin") throw "Admin has not found";
+        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin" || checkUsers.rows[0].role != "super-user") throw "Admin has not found";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -400,7 +400,7 @@ const flightController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "admin" && role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }

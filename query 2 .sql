@@ -14,7 +14,6 @@ create table users(
     verify text not null,
     created_on timestamp default CURRENT_TIMESTAMP not null,
     updated_on timestamp default CURRENT_TIMESTAMP not null,
-    check (role in ('user', 'admin')),
     primary key (id)
 );
 

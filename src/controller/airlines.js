@@ -61,11 +61,10 @@ const airlinesController = {
   insertAirlines: async (req, res) => {
     try {
       const id = uuidv4().toLocaleLowerCase();
-
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -99,7 +98,7 @@ const airlinesController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -147,7 +146,7 @@ const airlinesController = {
       const role = req.payload.role;
 
       try {
-        if (role != "admin") throw "You're Cannot Access this feature";
+        if (role != "super-user") throw "You're Cannot Access this feature";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
