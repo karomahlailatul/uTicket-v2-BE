@@ -19,7 +19,7 @@ const flightController = {
       const search_option_3 = req.query.search_option_3;
       const searchByOption1 = req.query.searchby_option_1 || "airport_depature";
       const searchByOption2 = req.query.searchby_option_2 || "airport_arrive";
-      const searchByOption3 = req.query.searchby_option_3 || "name";
+      const searchByOption3 = req.query.searchby_option_3 || "airlines_id";
 
       let search;
       let querysearch = "";
