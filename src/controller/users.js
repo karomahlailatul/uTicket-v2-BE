@@ -132,12 +132,8 @@ const UserController = {
       if (typeof queryUpdate === "undefined" && typeof queryDelete === "undefined") {
         
         responseHelper(res, user, 200);
-        // client.SET(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
-
-
-        // It's documented
-
-        client.set(`users/${email}`, JSON.stringify(user), 'ex', 60)
+        // client.setEx(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
+        client.set(`users/${email}`, JSON.stringify(user), 'ex', 60 * 60 * 6)
 
 
       } else if (typeof queryUpdate === "string" && typeof queryDelete === "undefined") {

@@ -30,7 +30,6 @@ const airportController = {
         totalData: totalData,
         totalPage: totalPage,
       };
-      // client.setEx(`getPaginationAirport/${req.query}`, 60 * 60 * 3, JSON.stringify(result.rows))
       responseHelper(res, result.rows, 200, null, pagination);
     } catch (error) {
       console.log(error)

@@ -9,7 +9,7 @@ const usersModel = require("../models/users");
 const bwipjs = require("bwip-js");
 
 const crypto = require("crypto");
-// const { authenticateGoogle, uploadToGoogleDrive, deleteFromGoogleDrive, uploadToGoogleDriveQR } = require("../middlewares/GoogleCloudServices");
+// const { authenticateGoogle, uploadToGoogleDrive, deleteFromGoogleDrive } = require("../middlewares/GoogleCloudServices");
 
 const bookingController = {
   getPaginationBooking: async (req, res) => {

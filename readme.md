@@ -157,7 +157,7 @@ npm i googleapis;
 ```
 
 
-import [node-redis]
+import [redis]
 
 ```shell
 npm i redis;
@@ -179,7 +179,7 @@ npm i redis;
 [uuid]: https://www.npmjs.com/package/uuid
 [jsonwebtoken]: https://www.npmjs.com/package/jsonwebtoken
 [multer]: https://www.npmjs.com/package/multer
-[node-redis]: https://www.npmjs.com/package/redis
+[redis]: https://www.npmjs.com/package/redis
 [express]: http://expressjs.com
 [nodemon]: https://www.npmjs.com/package/nodemon
 [morgan]: https://www.npmjs.com/package/morgan

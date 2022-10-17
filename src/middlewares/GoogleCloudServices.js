@@ -43,43 +43,6 @@ const uploadToGoogleDrive = async (file, auth) => {
 };
 
 
-
-
-
-const uploadToGoogleDriveQR = async (id, value, auth) => {
-    const fileMetadata = {
-        // name: file.originalname,
-        name: new Date().getTime() + '-' + id,
-        parents: ["1g4P-2asQxqviWBg45FJgNheVf8EDMCFt"], // Change it according to your desired parent folder id
-    };
-
-    var imgData = value;
-    // var base64Data = imgData.replace(/^data:image\/png;base64,/, "");
-    
-    var base64Data = imgData.replace(/^data:image\/png;/, "");
-
-    // const image = Buffer.from(base64Data, "base64")
-
-     
-    const media = {
-        mimeType:  "image/png",
-        body: ("blob:",value), 
-    };
-
-    const driveService = google.drive({ version: "v3", auth });
-
-    const response = await driveService.files.create({
-        requestBody: fileMetadata,
-        media: media,
-        fields: "id",
-    });
-    return response;
-};
-
-
-
-
-
 const deleteFromGoogleDrive = async (fileId, auth) => {
     
     const fileIdAfterSlice = fileId.slice(38,71);
@@ -95,5 +58,5 @@ module.exports = {
     authenticateGoogle,
     uploadToGoogleDrive,
     deleteFromGoogleDrive,
-    uploadToGoogleDriveQR
+    
 }
