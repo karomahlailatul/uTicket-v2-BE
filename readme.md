@@ -16,11 +16,30 @@ and functions. This distribution also contains C language bindings.
 
 Download PostgreSQL are available at https://www.postgresql.org/download/
 
+## Requirements Redis
+
+Redis (which means Remote Dictionary Serve) is an open-source NoSQL database known to be a fast, in-memory key-value data store, cache, message broker, and queue.
+
+Download Redis are available at https://redis.io/download/
+
 ## Installing
 
 installing Node.js on here : https://nodejs.org/en/download/
 
 installing PostgreSQL on here : https://www.postgresql.org/download/
+
+installing Redis on here :
+
+Mac OS : https://developer.redis.com/create/homebrew/
+
+Winsdows OS : https://developer.redis.com/create/windows/
+
+Linux OS :
+
+```shell
+ sudo apt install redis-server
+```
+
 
 Next to Terminal Visual Studio code
 
@@ -136,6 +155,14 @@ import [googleapis]
 ```shell
 npm i googleapis;
 ```
+
+
+import [node-redis]
+
+```shell
+npm i redis;
+```
+
 
 
 

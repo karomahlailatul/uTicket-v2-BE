@@ -6,6 +6,7 @@ const responseHelper = require("../helper/responseHelper");
 const authHelper = require("../middlewares/JWT");
 const createError = require("http-errors");
 
+const client = require('../config/redis')
 const crypto = require("crypto");
 const sendEmail = require("../middlewares/NodeMailer");
 
@@ -129,7 +130,10 @@ const UserController = {
       delete user.password;
 
       if (typeof queryUpdate === "undefined" && typeof queryDelete === "undefined") {
+        
         responseHelper(res, user, 200);
+        client.setEx(`users/${email}`, 60 * 60 * 3, JSON.stringify(user))
+
       } else if (typeof queryUpdate === "string" && typeof queryDelete === "undefined") {
         if (req.file) {
           const auth = authenticateGoogle();

@@ -2,7 +2,7 @@
 const airportModel = require("../models/airport");
 const createError = require("http-errors");
 const responseHelper = require("../helper/responseHelper");
-// const client = require('../config/redis')
+const client = require('../config/redis')
 
 const airportController = {
   getPaginationAirport: async (req, res) => {
@@ -30,6 +30,7 @@ const airportController = {
         totalData: totalData,
         totalPage: totalPage,
       };
+      // client.setEx(`getPaginationAirport/${req.query}`, 60 * 60 * 3, JSON.stringify(result.rows))
       responseHelper(res, result.rows, 200, null, pagination);
     } catch (error) {
       console.log(error)
@@ -49,7 +50,7 @@ const airportController = {
       }
 
       const result = checkairport;
-      // client.setEx(`transaction/${id}`, 60 * 60, JSON.stringify(result.rows))
+      client.setEx(`getAirport/${id}`, 60 * 60, JSON.stringify(result.rows))
       responseHelper(res, result.rows, 200, null);
     } catch (error) {
       res.send(createError(404));
