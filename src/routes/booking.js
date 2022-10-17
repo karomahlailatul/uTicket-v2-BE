@@ -3,8 +3,8 @@ const router = express.Router();
 const bookingController = require("../controller/booking");
 const { protect } = require("../middlewares/JWT");
 
-router.get("/", bookingController.getPaginationBooking);
-router.get("/:id", bookingController.getBooking);
+router.get("/",  protect, bookingController.getPaginationBooking);
+router.get("/:id", protect,  bookingController.getBooking);
 router.post("/", protect, bookingController.insertBooking);
 router.put("/:id", protect, bookingController.updateBookingAdmin);
 
