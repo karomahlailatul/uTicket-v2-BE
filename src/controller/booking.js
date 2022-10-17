@@ -18,7 +18,7 @@ const bookingController = {
       const limit = parseInt(req.query.limit) || 10;
       const offset = (page - 1) * limit;
       const search = req.query.search;
-      const searchBy = req.query.searchby || "id";
+      const searchBy = req.query.searchby || "users_id";
       let querysearch = "";
       if (search === undefined) {
         querysearch = `inner join users on booking.users_id = users.id 
@@ -33,7 +33,7 @@ const bookingController = {
                                 inner join airlines on flight.airlines_id = airlines.id  
                                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id 
                                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
-                                where airport_depature.${searchBy} ilike '\%${search}\%' `;
+                                where booking.${searchBy} ilike '\%${search}\%' `;
       }
 
       const totalData = parseInt((await bookingModel.selectAllSearchCount(querysearch)).rows[0].count);

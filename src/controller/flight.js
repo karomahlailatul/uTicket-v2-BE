@@ -14,20 +14,38 @@ const flightController = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const offset = (page - 1) * limit;
-      const search = req.query.search;
+      const search_option_1 = req.query.search_option_1;
+      const search_option_2 = req.query.search_option_2;
+      const search_option_3 = req.query.search_option_3;
+      const searchByOption1 = req.query.searchby_option_1 || "airport_depature";
+      const searchByOption2 = req.query.searchby_option_2 || "airport_arrive";
+      const searchByOption3 = req.query.searchby_option_3 || "name";
+
+      let search;
       let querysearch = "";
-      if (search === undefined) {
+
+      if (typeof search_option_1 === "string" && typeof search_option_2 === "string" && typeof search_option_3 === "string" ) {
         querysearch = `inner join airlines on flight.airlines_id = airlines.id 
                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id
                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id
                 `;
-       
       } else {
+        let queryFilter = ``;
+
+        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) != "string"  &&  typeof (req.query.searchby_option_3) != "string"  ) {
+          queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%'`;
+        }
+        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) == "string"  && typeof (req.query.searchby_option_3) != "string" ) {
+          queryFilter = `where flight.${searchByOption1} ilike '\%${search_option_1}\%' and  flight.${searchByOption2} ilike '\%${search_option_2}\%' `;
+        }
+        if (typeof (req.query.searchby_option_1) == "string"  && typeof (req.query.searchby_option_2) == "string"  && typeof (req.query.searchby_option_3) == "string"  ) {
+          queryFilter = `where airlines.${searchByOption3} ilike '\%${search_option_1}\%' and flight.${searchByOption2} ilike '\%${search_option_3}\%' and flight.${searchByOption2} ilike '\%${search_option_3}\%' `;
+        }
+
         querysearch = `inner join airlines on flight.airlines_id = airlines.id 
                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id
                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
-                where airlines.name ilike '\%${search}\%' `;
-       
+                 ${queryFilter} `;
       }
 
       const totalData = parseInt((await flightModel.selectAllSearchCount(querysearch)).rows[0].count);
@@ -76,43 +94,41 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
-     
+      const {
+        airlines_id,
+        airport_depature,
+        airport_arrive,
+        depature,
+        arrive,
+        lungage,
+        reschedule,
+        refundable,
+        meal,
+        wifi,
+        price,
+        type_class,
+        capacity,
+        status,
 
-      const {  
-        airlines_id ,
-        airport_depature ,
-        airport_arrive ,
-        depature ,
-        arrive ,
-        lungage ,
-        reschedule ,
-        refundable ,
-        meal ,
-        wifi ,
-        price ,
-        type_class ,
-        capacity ,
-        status ,
-    
-        estimate ,
+        estimate,
         terminal_verification,
 
-        status_transit  ,
-        airport_transit_1  ,
-        time_transit_1  ,
-        airport_transit_2  ,
-        time_transit_2  ,
-        airport_transit_3  ,
-        time_transit_3  ,
-        airport_transit_4  ,
-        time_transit_4  ,
-    
-        admin_id  } = req.body;
+        status_transit,
+        airport_transit_1,
+        time_transit_1,
+        airport_transit_2,
+        time_transit_2,
+        airport_transit_3,
+        time_transit_3,
+        airport_transit_4,
+        time_transit_4,
 
-      const idHex = (crypto.randomBytes(8).toString("hex")).toLocaleUpperCase()
-      const id = `${airport_depature}-${airport_arrive}-${terminal_verification}-${idHex}`  
+        admin_id,
+      } = req.body;
 
-    
+      const idHex = crypto.randomBytes(8).toString("hex").toLocaleUpperCase();
+      const id = `${airport_depature}-${airport_arrive}-${terminal_verification}-${idHex}`;
+
       const checkAirlines = await airlinesModel.selectAirlines(airlines_id);
 
       try {
@@ -129,7 +145,6 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
-         
       const checkairportTo = await airportModel.selectAirport(airport_arrive);
 
       try {
@@ -138,92 +153,89 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
+      if (airport_transit_1) {
+        const checkairportTransit1 = await airportModel.selectAirport(airport_transit_1);
 
-
-      if ( airport_transit_1 ){
-      const checkairportTransit1 = await airportModel.selectAirport(airport_transit_1);
-
-      try {
-        if (checkairportTransit1.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
-      } }
-         
-
+        try {
+          if (checkairportTransit1.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
+      }
 
       if (airport_transit_2) {
-      const checkairportTransit2 = await airportModel.selectAirport(airport_transit_2);
+        const checkairportTransit2 = await airportModel.selectAirport(airport_transit_2);
 
-      try {
-        if (airport_transit_2 && checkairportTransit2.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
+        try {
+          if (airport_transit_2 && checkairportTransit2.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
       }
-         }
-        
-         
-         if (airport_transit_3) {
-      const checkairportTransit3 = await airportModel.selectAirport(airport_transit_3);
 
-      try {
-        if (airport_transit_3 && checkairportTransit3.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
-      }
-    }
-    if (airport_transit_4) { 
-      const checkairportTransit4 = await airportModel.selectAirport(airport_transit_4);
+      if (airport_transit_3) {
+        const checkairportTransit3 = await airportModel.selectAirport(airport_transit_3);
 
-      try {
-        if (airport_transit_4 && checkairportTransit4.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
+        try {
+          if (airport_transit_3 && checkairportTransit3.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
       }
-    }
-    
+      if (airport_transit_4) {
+        const checkairportTransit4 = await airportModel.selectAirport(airport_transit_4);
+
+        try {
+          if (airport_transit_4 && checkairportTransit4.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
+      }
+
       const checkUsers = await flightModel.selectUsers(admin_id);
 
       try {
-        if (checkUsers.rowCount == 0 && ( checkUsers.rows[0].role != "admin" && checkUsers.rows[0].role != "super-user" ) ) throw "Admin has not found";
+        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin" && checkUsers.rows[0].role != "super-user") throw "Admin has not found";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
 
       await flightModel.insertFlight(
-        id  ,
-        airlines_id ,
-        airport_depature ,
-        airport_arrive ,
-        depature ,
-        arrive ,
-        lungage ,
-        reschedule ,
-        refundable ,
-        meal ,
-        wifi ,
-        price ,
-        type_class ,
-        capacity ,
+        id,
+        airlines_id,
+        airport_depature,
+        airport_arrive,
+        depature,
+        arrive,
+        lungage,
+        reschedule,
+        refundable,
+        meal,
+        wifi,
+        price,
+        type_class,
+        capacity,
 
-        estimate ,
+        estimate,
         terminal_verification,
-        
-        status ,
-    
-        status_transit  ,
-        airport_transit_1  ,
-        time_transit_1  ,
-        airport_transit_2  ,
-        time_transit_2  ,
-        airport_transit_3  ,
-        time_transit_3  ,
-        airport_transit_4  ,
-        time_transit_4  ,
-    
-        admin_id );
+
+        status,
+
+        status_transit,
+        airport_transit_1,
+        time_transit_1,
+        airport_transit_2,
+        time_transit_2,
+        airport_transit_3,
+        time_transit_3,
+        airport_transit_4,
+        time_transit_4,
+
+        admin_id
+      );
       responseHelper(res, null, 201, "New Flight Added");
     } catch (error) {
-        console.log(error)
+      console.log(error);
       res.send(createError(400));
     }
   },
@@ -247,37 +259,37 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
-      const {  
-        airlines_id ,
-        airport_depature ,
-        airport_arrive ,
-        depature ,
-        arrive ,
-        lungage ,
-        reschedule ,
-        refundable ,
-        meal ,
-        wifi ,
-        price ,
-        type_class ,
-        capacity ,
-        status ,
-    
-        
-        estimate ,
+      const {
+        airlines_id,
+        airport_depature,
+        airport_arrive,
+        depature,
+        arrive,
+        lungage,
+        reschedule,
+        refundable,
+        meal,
+        wifi,
+        price,
+        type_class,
+        capacity,
+        status,
+
+        estimate,
         terminal_verification,
 
-        status_transit  ,
-        airport_transit_1  ,
-        time_transit_1  ,
-        airport_transit_2  ,
-        time_transit_2  ,
-        airport_transit_3  ,
-        time_transit_3  ,
-        airport_transit_4  ,
-        time_transit_4  ,
-    
-        admin_id  } = req.body;
+        status_transit,
+        airport_transit_1,
+        time_transit_1,
+        airport_transit_2,
+        time_transit_2,
+        airport_transit_3,
+        time_transit_3,
+        airport_transit_4,
+        time_transit_4,
+
+        admin_id,
+      } = req.body;
 
       const checkAirlines = await airlinesModel.selectAirlines(airlines_id);
 
@@ -295,7 +307,6 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
-         
       const checkairportTo = await airportModel.selectAirport(airport_arrive);
 
       try {
@@ -304,53 +315,49 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
+      if (airport_transit_1) {
+        const checkairportTransit1 = await airportModel.selectAirport(airport_transit_1);
 
-
-      if ( airport_transit_1 ){
-      const checkairportTransit1 = await airportModel.selectAirport(airport_transit_1);
-
-      try {
-        if (checkairportTransit1.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
-      } }
-         
-
+        try {
+          if (checkairportTransit1.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
+      }
 
       if (airport_transit_2) {
-      const checkairportTransit2 = await airportModel.selectAirport(airport_transit_2);
+        const checkairportTransit2 = await airportModel.selectAirport(airport_transit_2);
 
-      try {
-        if (airport_transit_2 && checkairportTransit2.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
+        try {
+          if (airport_transit_2 && checkairportTransit2.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
       }
-         }
-        
-         
-         if (airport_transit_3) {
-      const checkairportTransit3 = await airportModel.selectAirport(airport_transit_3);
 
-      try {
-        if (airport_transit_3 && checkairportTransit3.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
-      }
-    }
-    if (airport_transit_4) { 
-      const checkairportTransit4 = await airportModel.selectAirport(airport_transit_4);
+      if (airport_transit_3) {
+        const checkairportTransit3 = await airportModel.selectAirport(airport_transit_3);
 
-      try {
-        if (airport_transit_4 && checkairportTransit4.rowCount == 0) throw "Airport Transit has not found";
-      } catch (error) {
-        return responseHelper(res, null, 404, error);
+        try {
+          if (airport_transit_3 && checkairportTransit3.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
       }
-    }
-    
+      if (airport_transit_4) {
+        const checkairportTransit4 = await airportModel.selectAirport(airport_transit_4);
+
+        try {
+          if (airport_transit_4 && checkairportTransit4.rowCount == 0) throw "Airport Transit has not found";
+        } catch (error) {
+          return responseHelper(res, null, 404, error);
+        }
+      }
+
       const checkUsers = await flightModel.selectUsers(admin_id);
 
       try {
-        if (checkUsers.rowCount == 0 && ( checkUsers.rows[0].role != "admin" && checkUsers.rows[0].role != "super-user")) throw "Admin has not found";
+        if (checkUsers.rowCount == 0 && checkUsers.rows[0].role != "admin" && checkUsers.rows[0].role != "super-user") throw "Admin has not found";
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
@@ -372,8 +379,7 @@ const flightController = {
         capacity,
         status,
 
-        
-        estimate ,
+        estimate,
         terminal_verification,
 
         status_transit,
@@ -386,9 +392,9 @@ const flightController = {
         airport_transit_4,
         time_transit_4,
 
-        admin_id );
+        admin_id
+      );
 
-   
       responseHelper(res, null, 201, "Flight Updated");
     } catch (error) {
       console.log(error);

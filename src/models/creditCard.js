@@ -15,7 +15,7 @@ const selectPaginationCreditCard= ({ limit, offset, sortby, sort, querysearch })
     return Pool.query(`select 
     credit_card.id , 
     credit_card.cc_number , 
-    credit_card.cc_vcc , 
+    
     credit_card.cc_exp , 
     credit_card.users_id , 
     users.name  , 
@@ -36,7 +36,7 @@ const selectCreditCard = (id) => {
     return Pool.query(`select 
     credit_card.id , 
     credit_card.cc_number , 
-    credit_card.cc_vcc , 
+    
     credit_card.cc_exp , 
     credit_card.users_id , 
     users.name  , 
