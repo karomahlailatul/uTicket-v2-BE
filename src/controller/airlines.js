@@ -13,12 +13,14 @@ const airlinesController = {
       const limit = parseInt(req.query.limit) || 10;
       const offset = (page - 1) * limit;
       const search = req.query.search;
+  
+      const searchBy = req.query.searchby || "name";
       let querysearch = "";
       if (search === undefined) {
         querysearch = ``;
       } else {
         // eslint-disable-next-line no-useless-escape
-        querysearch = ` where airlines.name ilike '\%${search}\%' `;
+        querysearch = ` where airlines.${searchBy} ilike '\%${search}\%' `;
   
       }
       

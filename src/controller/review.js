@@ -12,6 +12,7 @@ const reviewController = {
       const limit = parseInt(req.query.limit) || 10;
       const offset = (page - 1) * limit;
       const search = req.query.search;
+      const searchBy = req.query.searchby || "name";
       let querysearch = "";
       let totalData = "";
       if (search === undefined) {
@@ -28,7 +29,7 @@ const reviewController = {
                                 inner join airlines on flight.airlines_id = airlines.id  
                                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id 
                                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
-                                where users.name ilike '\%${search}\%' `;
+                                where users.${searchBy} ilike '\%${search}\%' `;
         totalData = parseInt((await reviewModel.selectAllSearch(querysearch)).rowCount);
       }
       const sortby = "review." + (req.query.sortby || "created_on");

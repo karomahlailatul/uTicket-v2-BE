@@ -11,13 +11,14 @@ const creditCardController = {
             const limit = parseInt(req.query.limit) || 10;
             const offset = (page - 1) * limit;
             const search = req.query.search;
+            const searchBy = req.query.searchby || "users_id";
             let querysearch = "";
             let totalData = "";
             if (search === undefined) {
                 querysearch = `inner join users on credit_card.users_id = users.id`;
                 totalData = parseInt((await creditCardModel.selectAllSearch(querysearch)).rowCount);
             } else {
-                querysearch = `inner join users on credit_card.users_id = users.id where users.name ilike '\%${search}\%' `;
+                querysearch = `inner join users on credit_card.users_id = users.id where users.${searchBy} ilike '\%${search}\%' `;
                 totalData = parseInt((await creditCardModel.selectAllSearch(querysearch)).rowCount);
             }
             const sortby = "credit_card." + ( req.query.sortby || "created_on" );

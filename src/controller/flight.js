@@ -21,9 +21,7 @@ const flightController = {
       const searchByOption2 = req.query.searchby_option_2 || "airport_arrive";
       const searchByOption3 = req.query.searchby_option_3 || "airlines_id";
 
-      let search;
       let querysearch = "";
-      
       let queryFilter = ``;
 
       if ( 
