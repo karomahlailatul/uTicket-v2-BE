@@ -40,16 +40,26 @@ const selectPaginationReview = ({ limit, offset, sortby, sort, querysearch }) =>
     airlines.logo as airlines_logo,
     airlines.description as airlines_description,
     airlines.support as airlines_support,
+
     flight.airport_depature,
     airport_depature.city as airport_depature_city ,
     airport_depature.country as airport_depature_country ,
-    airport_depature.airport as airport_depature_airport ,
-    airport_depature.terminal as airport_depature_terminal ,
+
+    airport_depature.country_code as airport_depature_country_code,
+    airport_depature.name as airport_depature_name,
+    airport_depature.iata as airport_depature_iata,
+    airport_depature.support as airport_depature_support,
+
+
     flight.airport_arrive,
     airport_arrive.city as airport_arrive_city ,
     airport_arrive.country as airport_arrive_country ,
-    airport_arrive.airport as airport_arrive_airport ,
-    airport_arrive.terminal as airport_arrive_terminal ,
+
+    airport_arrive.country_code as airport_arrive_country_code,
+    airport_arrive.name as airport_arrive_name,
+    airport_arrive.iata as airport_arrive_iata,
+    airport_arrive.support as airport_arrive_support,
+
     flight.depature,
     flight.arrive,
     flight.lungage ,
@@ -77,62 +87,73 @@ const selectPaginationReview = ({ limit, offset, sortby, sort, querysearch }) =>
 const selectReview = (id) => {
   return Pool.query(`select
 
-    review.id,
-    review.flight_id,
-    review.content,
-    review.rating,
-    review.users_id,
-    review.created_on,
+      review.id,
+      review.flight_id,
+      review.content,
+      review.rating,
+      review.users_id,
+      review.created_on,
 
-    
-    users.email  as  users_email  ,
-    users.username  as  users_username  ,
-    users.name  as  users_name  ,
-    users.country  as  users_country  ,
-    users.city  as  users_city  ,
-    users.address  as  users_address  ,
-    users.postal_code  as  users_postal_code  ,
-    users.phone  as  users_phone  ,
-    users.picture  as  users_picture  ,
-
-
+      
+      users.email  as  users_email  ,
+      users.username  as  users_username  ,
+      users.name  as  users_name  ,
+      users.country  as  users_country  ,
+      users.city  as  users_city  ,
+      users.address  as  users_address  ,
+      users.postal_code  as  users_postal_code  ,
+      users.phone  as  users_phone  ,
+      users.picture  as  users_picture  ,
 
 
-    flight.airlines_id,
-    airlines.name as airlines_name,
-    airlines.logo as airlines_logo,
-    airlines.description as airlines_description,
-    airlines.support as airlines_support,
-    flight.airport_depature,
-    airport_depature.city as airport_depature_city ,
-    airport_depature.country as airport_depature_country ,
-    airport_depature.airport as airport_depature_airport ,
-    airport_depature.terminal as airport_depature_terminal ,
-    flight.airport_arrive,
-    airport_arrive.city as airport_arrive_city ,
-    airport_arrive.country as airport_arrive_country ,
-    airport_arrive.airport as airport_arrive_airport ,
-    airport_arrive.terminal as airport_arrive_terminal ,
-    flight.depature,
-    flight.arrive,
-    flight.lungage ,
-    flight.reschedule ,
-    flight.refundable ,
-    flight.meal ,
-    flight.wifi ,
-    flight.price ,
-    flight.type_class ,
-    flight.capacity ,
-    flight.status ,
-    flight.status_transit ,
-    flight.airport_transit_1,
-    flight.time_transit_1,
-    flight.airport_transit_2,
-    flight.time_transit_2,
-    flight.airport_transit_3,
-    flight.time_transit_3,
-    flight.airport_transit_4,
-    flight.time_transit_4
+
+
+      flight.airlines_id,
+      airlines.name as airlines_name,
+      airlines.logo as airlines_logo,
+      airlines.description as airlines_description,
+      airlines.support as airlines_support,
+
+      flight.airport_depature,
+      airport_depature.city as airport_depature_city ,
+      airport_depature.country as airport_depature_country ,
+
+      airport_depature.country_code as airport_depature_country_code,
+      airport_depature.name as airport_depature_name,
+      airport_depature.iata as airport_depature_iata,
+      airport_depature.support as airport_depature_support,
+
+
+      flight.airport_arrive,
+      airport_arrive.city as airport_arrive_city ,
+      airport_arrive.country as airport_arrive_country ,
+
+      airport_arrive.country_code as airport_arrive_country_code,
+      airport_arrive.name as airport_arrive_name,
+      airport_arrive.iata as airport_arrive_iata,
+      airport_arrive.support as airport_arrive_support,
+
+      flight.depature,
+      flight.arrive,
+      flight.lungage ,
+      flight.reschedule ,
+      flight.refundable ,
+      flight.meal ,
+      flight.wifi ,
+      flight.price ,
+      flight.type_class ,
+      flight.capacity ,
+      flight.status ,
+      flight.status_transit ,
+      flight.airport_transit_1,
+      flight.time_transit_1,
+      flight.airport_transit_2,
+      flight.time_transit_2,
+      flight.airport_transit_3,
+      flight.time_transit_3,
+      flight.airport_transit_4,
+      flight.time_transit_4
+
 
     from review
    

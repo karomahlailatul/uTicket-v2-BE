@@ -162,8 +162,8 @@ const bookingController = {
       }
 
       const trip_depature = checkFlight.rows[0].depature;
-
-      let trip_arrive = ``;
+      const trip_arrive = checkFlight.rows[0].arrive;
+      // let trip_arrive = ``;
       let setPaymentDiscount;
 
       if (payment_discount == "" || payment_discount == "0" || payment_discount == "null" || payment_discount == undefined) {
@@ -175,8 +175,9 @@ const bookingController = {
       if (trip_status == "one_way") {
         payment_total = price * parseInt(passenger_count) - setPaymentDiscount;
       } else if (trip_status == "rounded_trip") {
-        payment_total = 2 * (price * parseInt(passenger_count)) - setPaymentDiscount;
-        trip_arrive = checkFlight.rows[0].depature;
+        return responseHelper(res, null, 404, `Feature Rounded Trip has been development`);
+        // payment_total = 2 * (price * parseInt(passenger_count)) - setPaymentDiscount;
+        // trip_arrive = checkFlight.rows[0].depature;
       }
 
       const id_users_verification = uuidv4().toLocaleLowerCase();
@@ -279,6 +280,14 @@ const bookingController = {
         passenger_nationality_6,
       } = req.body;
 
+
+      const checkBooking = await bookingModel.selectBooking(id);
+      try {
+        if (checkBooking.rowCount == 0) throw "Booking has not found";
+      } catch (error) {
+        return responseHelper(res, null, 404, error);
+      }
+      
       const checkUsers = await bookingModel.selectUsers(users_id);
 
       try {
@@ -311,26 +320,18 @@ const bookingController = {
 
       const price = parseInt(checkFlight.rows[0].price);
 
-      if (trip_status == "one_way") {
-        payment_total = price * parseInt(passenger_count);
-      } else if (trip_status == "rounded_trip") {
-        payment_total = 2 * (price * parseInt(passenger_count));
-      }
-
       const flightCapacity = parseInt(checkFlight.rows[0].capacity);
 
+      let availableCapacity
       if (flightCapacity < passenger_count) {
         return responseHelper(res, null, 404, `Only available ${flightCapacity} seat on this Flight`);
       } else if (flightCapacity >= passenger_count) {
-        let availableCapacity = parseInt(flightCapacity) - parseInt(passenger_count);
-        if (payment_status == "success" && booking_status == "success") {
-          await flightModel.updateCapacity(flight_id, availableCapacity);
-        }
+        availableCapacity = parseInt(flightCapacity) - parseInt(passenger_count);
       }
 
-      const trip_depature = parseInt(checkFlight.rows[0].depature);
-
-      let trip_arrive = ``;
+      const trip_depature = checkFlight.rows[0].depature;
+      const trip_arrive = checkFlight.rows[0].arrive;
+      // let trip_arrive = ``;
       let setPaymentDiscount;
 
       if (payment_discount == "" || payment_discount == "0" || payment_discount == "null" || payment_discount == undefined) {
@@ -342,8 +343,9 @@ const bookingController = {
       if (trip_status == "one_way") {
         payment_total = ( price * parseInt(passenger_count) - payment_discount );
       } else if (trip_status == "rounded_trip") {
-        payment_total = ( (2 * (price * parseInt(passenger_count))) - payment_discount );
-        trip_arrive = parseInt(checkFlight.rows[0].depature);
+        return responseHelper(res, null, 404, `Feature Rounded Trip has been development`);
+      // payment_total = ( (2 * (price * parseInt(passenger_count))) - payment_discount );
+        // trip_arrive = parseInt(checkFlight.rows[0].depature);
       }
 
       await bookingModel.updateBookingAdmin(
@@ -388,6 +390,54 @@ const bookingController = {
 
       if (payment_status == "success" && booking_status == "success") {
         await usersModel.deleteUsersVerificationAdmin(users_id, id);
+        await flightModel.updateCapacity(flight_id, availableCapacity);
+
+        const resultBooking = { 
+          id : checkBooking.rows[0].id ,
+          users_id : checkBooking.rows[0].users_id,
+          flight_id : checkBooking.rows[0].flight_id,
+  
+        }
+        const valueResultBooking = JSON.stringify(resultBooking);
+
+        bwipjs.toBuffer(
+          {
+            bcid: "qrcode", // Barcode type
+            text: valueResultBooking, // Text to encode
+            width: 100, // 3x scaling factor
+            height: 100, // Bar height, in millimeters
+            includetext: false, // Show human-readable text
+            textxalign: "center", // Always good to set this
+          },
+          async (err, png) => {
+            if (err) {
+              console.log(err);
+            } else {
+              // console.log("data:image/png;base64," + png.toString("base64"));
+              await bookingModel.updateBookingQRCode(id, "data:image/png;base64," + png.toString("base64"));
+            }
+          }
+        );
+  
+        bwipjs.toBuffer(
+          {
+            bcid: "code128", // Barcode type
+            text: id, // Text to encode
+            scale: 4, // 3x scaling factor
+            height: 15, // Bar height, in millimeters
+            includetext: true, // Show human-readable text
+            textxalign: "center", // Always good to set this
+          },
+          async (err, png) => {
+            if (err) {
+              console.log(err);
+            } else {
+              await bookingModel.updateBookingBarCode(id, "data:image/png;base64," + png.toString("base64"));
+              // console.log("data:image/png;base64," + png.toString("base64"));
+            }
+          }
+        );
+
       }
 
       responseHelper(res, null, 201, "Booking Updated");
@@ -456,7 +506,6 @@ const bookingController = {
 
       const users_id = checkBooking.rows[0].users_id;
 
-      // console.log(vCheckToken)
       
       const verificationCheck = await usersModel.checkUsersVerification(users_id, vCheckToken);
       if (verificationCheck.rowCount == 0) {
@@ -466,7 +515,6 @@ const bookingController = {
       await bookingModel.updateBookingPaymentSuccess(id);
       await usersModel.deleteUsersVerificationAdmin(users_id, vCheckToken);
 
-      // const resultBooking = await bookingModel.selectBookingBarcodeQRCode(id);
       const resultBooking = { 
         id : checkBooking.rows[0].id ,
         users_id : checkBooking.rows[0].users_id,
@@ -530,12 +578,12 @@ const bookingController = {
   failedBookingPayment: async (req, res) => {
     try {
       const id = req.query.id;
-      const token = req.query.token;
+      const tokenMidTrans = req.query.token;
 
       try {
-        if (typeof id != "string" && typeof token != "string") throw "Invalid Url Credential Payment";
-        if (typeof id == "string" && typeof token != "string") throw "Invalid Booking Payment";
-        if (typeof id != "string" && typeof token == "string") throw "Invalid Token Payment";
+        if (typeof id != "string" && typeof tokenMidTrans != "string") throw "Invalid Url Credential Payment";
+        if (typeof id == "string" && typeof tokenMidTrans != "string") throw "Invalid Booking Payment";
+        if (typeof id != "string" && typeof tokenMidTrans == "string") throw "Invalid Token Payment";
       } catch (error) {
         return responseHelper(res, null, 403, error);
       }
@@ -550,7 +598,7 @@ const bookingController = {
         return responseHelper(res, null, 404, error);
       }
 
-      const verificationCheck = await usersModel.checkUsersVerification(users_id, token);
+      const verificationCheck = await usersModel.checkUsersVerification(users_id, tokenMidTrans);
 
       if (verificationCheck.rowCount == 0) {
         return responseHelper(res, null, 403, "Invalid Credential Payment");
@@ -558,7 +606,7 @@ const bookingController = {
 
       await bookingModel.updateBookingPaymentError(id);
 
-      await usersModel.deleteUsersVerificationAdmin(users_id, token);
+      await usersModel.deleteUsersVerificationAdmin(users_id, tokenMidTrans);
 
       responseHelper(res, null, 201, "Payment Booking Failed");
     } catch (error) {

@@ -161,7 +161,7 @@ const airlinesController = {
         return responseHelper(res, null, 404, error);
       }
 
-      airlinesModel.deleteAirlines(id);
+      await airlinesModel.deleteAirlines(id);
       responseHelper(res, null, 200, "Airlines Deleted");
     } catch (error) {
       console.log(error);

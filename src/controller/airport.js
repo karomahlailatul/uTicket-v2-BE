@@ -2,7 +2,7 @@
 const airportModel = require("../models/airport");
 const createError = require("http-errors");
 const responseHelper = require("../helper/responseHelper");
-const client = require('../config/redis')
+// const client = require('../config/redis')
 
 const airportController = {
   getPaginationAirport: async (req, res) => {
@@ -49,7 +49,7 @@ const airportController = {
       }
 
       const result = checkairport;
-      client.setEx(`getAirport/${id}`, 60 * 60, JSON.stringify(result.rows))
+      // client.setEx(`getAirport/${id}`, 60 * 60, JSON.stringify(result.rows))
       responseHelper(res, result.rows, 200, null);
     } catch (error) {
       res.send(createError(404));
@@ -67,7 +67,7 @@ const airportController = {
       }
       const { city, country,country_code, name,iata ,support  } = req.body;
 
-      const id = country_code+iata;
+      const id = `${country_code}-${iata}`;
 
       const checkairport = await airportModel.selectAirport(id);
 
@@ -76,7 +76,6 @@ const airportController = {
       } catch (error) {
         return responseHelper(res, null, 404, error);
       }
-
 
       await airportModel.insertAirport(id, city, country,country_code, name,iata ,support);
       responseHelper(res, null, 201, "New Airport Added");
@@ -130,7 +129,7 @@ const airportController = {
         return responseHelper(res, null, 404, error);
       }
 
-      airportModel.deleteAirport(id);
+      await airportModel.deleteAirport(id);
       responseHelper(res, null, 200, "Airport Deleted");
     } catch (error) {
       console.log(error);

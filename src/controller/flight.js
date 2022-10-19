@@ -439,7 +439,7 @@ const flightController = {
         return responseHelper(res, null, 404, error);
       }
 
-      flightModel.deleteFlight(id);
+      await flightModel.deleteFlight(id);
       responseHelper(res, null, 200, "Flight Deleted");
     } catch (error) {
       console.log(error);

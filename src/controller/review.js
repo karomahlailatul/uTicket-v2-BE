@@ -29,7 +29,7 @@ const reviewController = {
                                 inner join airlines on flight.airlines_id = airlines.id  
                                 inner join airport as airport_depature on flight.airport_depature = airport_depature.id 
                                 inner join airport as airport_arrive on flight.airport_arrive = airport_arrive.id 
-                                where users.${searchBy} ilike '\%${search}\%' `;
+                                where review.${searchBy} ilike '\%${search}\%' `;
         totalData = parseInt((await reviewModel.selectAllSearch(querysearch)).rowCount);
       }
       const sortby = "review." + (req.query.sortby || "created_on");
@@ -144,7 +144,7 @@ const reviewController = {
         return responseHelper(res, null, 404, error);
       }
 
-      reviewModel.deleteReview(id);
+      await reviewModel.deleteReview(id);
       responseHelper(res, null, 200, "Review Deleted");
     } catch (error) {
       console.log(error);

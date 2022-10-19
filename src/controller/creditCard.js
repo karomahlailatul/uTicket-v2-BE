@@ -118,7 +118,7 @@ const creditCardController = {
                 return responseHelper(res, null, 404, error);
             }
 
-            creditCardModel.deleteCreditCard(id);
+            await creditCardModel.deleteCreditCard(id);
             responseHelper(res, null, 200, "Credit Card Deleted");
         } catch (error) {
             console.log(error)
