@@ -13,6 +13,6 @@ router.delete("/:id", protect, bookingController.deleteBooking);
 router.post("/py-verify", bookingController.updateBookingPaymentVerification);
 // router.put("/py-error", protect, bookingController.updateBookingAdmin);
 
-router.put("/py-failed", bookingController.failedBookingPayment);
+router.post("/py-failed", bookingController.failedBookingPayment);
 
 module.exports = router;

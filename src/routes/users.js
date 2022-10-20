@@ -20,9 +20,9 @@ router
   .post("/refresh-token", ControllerUsers.refreshToken)
   .get("/profile", protect, hitCacheGetProfileUsers , ControllerUsers.profileAccount)
   .put("/profile", protect, deleteCacheProfileUsers , upload.single("picture") , ControllerUsers.profileAccount)
-  .delete("/profile", protect, hitCacheGetProfileUsers , ControllerUsers.profileAccount)
-  .put("/profile/changeEmail", protect, hitCacheGetProfileUsers , ControllerUsers.changeEmail)
-  .put("/profile/changePassword", protect, hitCacheGetProfileUsers , ControllerUsers.changePassword)
+  .delete("/profile", protect, deleteCacheProfileUsers , ControllerUsers.profileAccount)
+  .put("/profile/changeEmail", protect, deleteCacheProfileUsers, ControllerUsers.changeEmail)
+  .put("/profile/changePassword", protect, deleteCacheProfileUsers , ControllerUsers.changePassword)
 
   .post("/verify", ControllerUsers.VerifyAccount);
 
